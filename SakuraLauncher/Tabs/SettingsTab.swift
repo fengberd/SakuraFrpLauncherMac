@@ -87,7 +87,7 @@ struct SettingsTab: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("启动器").font(.title2)
             HStack {
-                Text("隧道状态通知: ")
+                Text("隧道状态通知")
                 Menu(model.notificationMode == 0 ? "显示所有" : model.notificationMode == 1 ? "隐藏所有" : "隐藏启动成功") {
                     Button("显示所有", action: { model.notificationMode = 0 })
                     Button("隐藏所有", action: { model.notificationMode = 1 })
@@ -125,6 +125,19 @@ struct SettingsTab: View {
                     }) { checkingUpdate = false }
                 }
                 .disabled(!model.connected || !model.checkUpdate || checkingUpdate)
+            }
+            HStack {
+                Text("frpc 日志等级")
+                Menu(model.frpcLogLevel == "trace" ? "跟踪 [Trace]" : model.frpcLogLevel == "debug" ? "调试 [Debug]" : model.frpcLogLevel == "info" ? "信息 [Info]" : model.frpcLogLevel == "warn" ? "警告 [Warn]" :
+                    model.frpcLogLevel == "error" ? "错误 [Error]" : ""
+                ) {
+                    Button("跟踪 [Trace]", action: { model.frpcLogLevel = "trace" })
+                    Button("调试 [Debug]", action: { model.frpcLogLevel = "debug" })
+                    Button("信息 [Info]", action: { model.frpcLogLevel = "info" })
+                    Button("警告 [Warn]", action: { model.frpcLogLevel = "warn" })
+                    Button("错误 [Error]", action: { model.frpcLogLevel = "error" })
+                }
+                .frame(width: 150)
             }
             Divider()
             HStack(spacing: 8) {

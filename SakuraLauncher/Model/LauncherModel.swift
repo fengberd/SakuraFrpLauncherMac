@@ -324,6 +324,14 @@ import UserNotifications
         }
     }
 
+    var frpcLogLevel: String {
+        get { config.frpcLogLevel }
+        set {
+            config.frpcLogLevel = newValue
+            pushServiceConfig()
+        }
+    }
+
     var enableFrpcTls: Bool {
         get { config.frpcForceTls }
         set {
