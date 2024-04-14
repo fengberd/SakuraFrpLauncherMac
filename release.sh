@@ -1,7 +1,4 @@
 #!/bin/bash
-rm -rf release
-mkdir -p release
-
 build_and_release() {
     echo "[+] Building SakuraLauncher for $2..."
     start_time=$(date +%s)
@@ -64,6 +61,9 @@ do_notraize() {
     xcrun stapler validate $target
     echo "    - Done!"
 }
+
+rm -rf release
+mkdir -p release
 
 build_and_release "x86_64" "Intel"
 build_and_release "arm64" "Apple Silicon"
