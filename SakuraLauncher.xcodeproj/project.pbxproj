@@ -729,7 +729,7 @@
 			repositoryURL = "https://github.com/grpc/grpc-swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.18.0;
+				minimumVersion = 1.22.0;
 			};
 		};
 		F67C757A2A73749900FF3E61 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
