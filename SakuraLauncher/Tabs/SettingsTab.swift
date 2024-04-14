@@ -166,6 +166,14 @@ struct SettingsTab: View {
                 }
             }
             HStack(spacing: 16) {
+                Toggle("高级用户模式", isOn: $model.advancedMode)
+                    .toggleStyle(SwitchToggleStyle())
+                    .disabled(!model.connected)
+                Image(systemName: "questionmark.circle")
+                    .help("操作不当可能造成【隧道功能异常、数据异常】等一系列使用问题，甚至可能造成您的【设备遭到攻击】，出现财产损失。启用前请确保您已具有【能理解自己到底在做什么】的能力")
+                    .font(.system(size: 16))
+            }
+            HStack(spacing: 16) {
                 Button("打开工作目录") {
                     model.rpcWithAlert {
                         _ = try await model.RPC?.openCWD(model.rpcEmpty)
@@ -173,6 +181,7 @@ struct SettingsTab: View {
                 }
             }
         }
+        .padding(.bottom, 16)
     }
 }
 

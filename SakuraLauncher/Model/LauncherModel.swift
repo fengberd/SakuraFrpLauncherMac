@@ -15,9 +15,11 @@ import UserNotifications
         UserDefaults.standard.register(defaults: [
             "logTextWrapping": true,
             "notificationMode": 0,
+            "advancedMode": false,
         ])
         logTextWrapping = UserDefaults.standard.bool(forKey: "logTextWrapping")
         notificationMode = UserDefaults.standard.integer(forKey: "notificationMode")
+        advancedMode = UserDefaults.standard.bool(forKey: "advancedMode")
 
         defer { notificationMode = notificationMode }
 
@@ -44,6 +46,7 @@ import UserNotifications
                 user = .init()
                 config = .init()
                 update = .init()
+                notifications = .init()
 
                 logs = .init()
                 logFilters = .init()
@@ -117,6 +120,10 @@ import UserNotifications
         }
     }
 
+    @Published var advancedMode: Bool {
+        willSet { UserDefaults.standard.setValue(newValue, forKey: "advancedMode") }
+    }
+
     // MARK: - RPC
 
     let rpcEmpty = Empty()
@@ -172,6 +179,9 @@ import UserNotifications
                 }
                 if u.hasUpdate {
                     update = u.update
+                }
+                if u.hasNotifications {
+                    notifications = u.notifications
                 }
             },
             initStream(client.streamLog(rpcEmpty)) { [self] l in
@@ -308,6 +318,7 @@ import UserNotifications
     // MARK: - Service Config & Update
 
     @Published var user = User()
+    @Published var notifications = NotificationList()
 
     @Published var config = ServiceConfig()
     @Published var update = SoftwareUpdate()
@@ -363,6 +374,7 @@ import UserNotifications
         assert(preview)
         self.preview = true
         logTextWrapping = true
+        advancedMode = false
         notificationMode = 1
         launchAtLogin = false
     }

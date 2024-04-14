@@ -28,6 +28,7 @@
 		F69B5867267B704E006A3EBD /* RemoteConfigPopup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F69B5866267B704E006A3EBD /* RemoteConfigPopup.swift */; };
 		F6A3EA572A738233006A9B6E /* BootAgent.app in Copy BootAgent */ = {isa = PBXBuildFile; fileRef = F67C75972A737F7F00FF3E61 /* BootAgent.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F6A5D442267344B700F20951 /* LauncherModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6A5D441267344B700F20951 /* LauncherModel.swift */; };
+		F6B31F732BCC3455001C882D /* WebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B31F722BCC3455001C882D /* WebBridge.swift */; };
 		F6B47BF8266900540051B308 /* SettingsTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B47BF7266900540051B308 /* SettingsTab.swift */; };
 		F6B47BFA2669005C0051B308 /* LogTab.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B47BF92669005C0051B308 /* LogTab.swift */; };
 		F6B5CCAE2679BE8B0014E38A /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6B5CCAD2679BE8B0014E38A /* Extension.swift */; };
@@ -87,6 +88,7 @@
 		F69B5866267B704E006A3EBD /* RemoteConfigPopup.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteConfigPopup.swift; sourceTree = "<group>"; };
 		F6A5D441267344B700F20951 /* LauncherModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LauncherModel.swift; sourceTree = "<group>"; };
 		F6AA57842A738377006EAFDC /* BootAgent.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = BootAgent.entitlements; sourceTree = "<group>"; };
+		F6B31F722BCC3455001C882D /* WebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebBridge.swift; sourceTree = "<group>"; };
 		F6B47BF7266900540051B308 /* SettingsTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTab.swift; sourceTree = "<group>"; };
 		F6B47BF92669005C0051B308 /* LogTab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogTab.swift; sourceTree = "<group>"; };
 		F6B5CCAD2679BE8B0014E38A /* Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extension.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 			children = (
 				F6B5CCAD2679BE8B0014E38A /* Extension.swift */,
 				F63B3A01267AD77700BC000D /* DaemonHost.swift */,
+				F6B31F722BCC3455001C882D /* WebBridge.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -400,6 +403,7 @@
 			files = (
 				F6B47BFA2669005C0051B308 /* LogTab.swift in Sources */,
 				F66A6C9C266650B100FF041B /* ContentView.swift in Sources */,
+				F6B31F732BCC3455001C882D /* WebBridge.swift in Sources */,
 				F69B5867267B704E006A3EBD /* RemoteConfigPopup.swift in Sources */,
 				F6430F66266A0281007C5DC3 /* TunnelItemView.swift in Sources */,
 				F6C4786C266A17B8003E524C /* TunnelModel.swift in Sources */,

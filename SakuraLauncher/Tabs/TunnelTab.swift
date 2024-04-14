@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct TunnelTab: View {
+    @Environment(\.openWindow) var openWindow
+
     @EnvironmentObject var model: LauncherModel
 
     @State var reloading = false
@@ -13,7 +15,7 @@ struct TunnelTab: View {
                     .padding(.leading, 24)
 
                 Button(action: {
-                    model.showPopup(AnyView(CreateTunnelPopup()))
+                    openWindow(id: "create-tunnel")
                 }) {
                     Image(systemName: "plus")
                 }
@@ -45,6 +47,9 @@ struct TunnelTab: View {
                         LazyVGrid(columns: Array(repeating: .init(.adaptive(minimum: 260), spacing: 20), count: Int(geometry.size.width / 260)), alignment: .leading, spacing: 20) {
                             ForEach(model.tunnels, id: \.id) { t in
                                 TunnelItemView(tunnel: t).contextMenu {
+                                    Button("编辑隧道") {
+                                        openWindow(id: "create-tunnel", value: try! t.proto.jsonString())
+                                    }
                                     Button("删除隧道") {
                                         let alert = NSAlert()
                                         alert.messageText = "操作确认"
