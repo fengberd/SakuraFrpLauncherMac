@@ -23,9 +23,7 @@ import UserNotifications
 
         logDateFormatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
 
-        launchAtLogin = (SMCopyAllJobDictionaries(kSMDomainUserLaunchd)
-            .takeRetainedValue() as NSArray as! [[String: AnyObject]])
-            .contains { $0["Label"] as! String == "com.natfrp.launcher.boot-agent" }
+        launchAtLogin = SMAppService.loginItem(identifier: "com.natfrp.launcher.boot-agent").status == .enabled
 
         daemon = DaemonHost(self)
 
@@ -107,9 +105,15 @@ import UserNotifications
 
     @Published var launchAtLogin: Bool {
         didSet {
-            if !SMLoginItemSetEnabled("com.natfrp.launcher.boot-agent" as CFString, launchAtLogin) {
-                showAlert("请检查是否开启了必要的权限", "启动项设置失败")
+            let svc = SMAppService.loginItem(identifier: "com.natfrp.launcher.boot-agent")
+            if launchAtLogin {
+                if let _ = try? svc.register() {
+                    return
+                }
+            } else if let _ = try? svc.unregister() {
+                return
             }
+            showAlert("请检查是否开启了必要的权限", "启动项设置失败")
         }
     }
 
