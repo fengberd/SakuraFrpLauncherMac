@@ -45,7 +45,9 @@ struct SettingsTab: View {
                     Button("刷新节点列表") {
                         pendingRefresh = true
                         model.rpcWithAlert({
-                            _ = try await model.RPC?.reloadNodes(model.rpcEmpty)
+                            _ = try await model.RPC?.reloadNodes(.with {
+                                $0.force = true
+                            })
                         }) { pendingRefresh = false }
                     }
                     .padding(.leading)

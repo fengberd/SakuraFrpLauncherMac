@@ -2,7 +2,7 @@ import SwiftUI
 
 struct AboutTab: View {
     @EnvironmentObject var model: LauncherModel
-    
+
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
@@ -15,7 +15,7 @@ struct AboutTab: View {
                     .font(.title2)
                     .padding(.top, 14)
 
-                Text("版权所有 © 2021-2023 iDea Leaper")
+                Text("版权所有 © 2021-2024 iDea Leaper")
                     .font(.title3)
                     .padding(.top, 14)
                 Link("https://github.com/natfrp/launcher-macos", destination: URL(string: "https://github.com/natfrp/launcher-macos")!)

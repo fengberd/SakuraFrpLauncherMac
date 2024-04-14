@@ -55,15 +55,20 @@ internal protocol NatfrpServiceClientProtocol: GRPCClient {
     callOptions: CallOptions?
   ) -> UnaryCall<TunnelUpdate, TunnelUpdate>
 
+  func authTunnel(
+    _ request: TunnelAuthRequest,
+    callOptions: CallOptions?
+  ) -> UnaryCall<TunnelAuthRequest, Empty>
+
   func reloadTunnels(
     _ request: Empty,
     callOptions: CallOptions?
   ) -> UnaryCall<Empty, Empty>
 
   func reloadNodes(
-    _ request: Empty,
+    _ request: ReloadNodesRequest,
     callOptions: CallOptions?
-  ) -> UnaryCall<Empty, Empty>
+  ) -> UnaryCall<ReloadNodesRequest, Empty>
 
   func clearLog(
     _ request: Empty,
@@ -241,6 +246,24 @@ extension NatfrpServiceClientProtocol {
     )
   }
 
+  /// Unary call to AuthTunnel
+  ///
+  /// - Parameters:
+  ///   - request: Request to send to AuthTunnel.
+  ///   - callOptions: Call options.
+  /// - Returns: A `UnaryCall` with futures for the metadata, status and response.
+  internal func authTunnel(
+    _ request: TunnelAuthRequest,
+    callOptions: CallOptions? = nil
+  ) -> UnaryCall<TunnelAuthRequest, Empty> {
+    return self.makeUnaryCall(
+      path: NatfrpServiceClientMetadata.Methods.authTunnel.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeAuthTunnelInterceptors() ?? []
+    )
+  }
+
   /// Unary call to ReloadTunnels
   ///
   /// - Parameters:
@@ -266,9 +289,9 @@ extension NatfrpServiceClientProtocol {
   ///   - callOptions: Call options.
   /// - Returns: A `UnaryCall` with futures for the metadata, status and response.
   internal func reloadNodes(
-    _ request: Empty,
+    _ request: ReloadNodesRequest,
     callOptions: CallOptions? = nil
-  ) -> UnaryCall<Empty, Empty> {
+  ) -> UnaryCall<ReloadNodesRequest, Empty> {
     return self.makeUnaryCall(
       path: NatfrpServiceClientMetadata.Methods.reloadNodes.path,
       request: request,
@@ -483,15 +506,20 @@ internal protocol NatfrpServiceAsyncClientProtocol: GRPCClient {
     callOptions: CallOptions?
   ) -> GRPCAsyncUnaryCall<TunnelUpdate, TunnelUpdate>
 
+  func makeAuthTunnelCall(
+    _ request: TunnelAuthRequest,
+    callOptions: CallOptions?
+  ) -> GRPCAsyncUnaryCall<TunnelAuthRequest, Empty>
+
   func makeReloadTunnelsCall(
     _ request: Empty,
     callOptions: CallOptions?
   ) -> GRPCAsyncUnaryCall<Empty, Empty>
 
   func makeReloadNodesCall(
-    _ request: Empty,
+    _ request: ReloadNodesRequest,
     callOptions: CallOptions?
-  ) -> GRPCAsyncUnaryCall<Empty, Empty>
+  ) -> GRPCAsyncUnaryCall<ReloadNodesRequest, Empty>
 
   func makeClearLogCall(
     _ request: Empty,
@@ -618,6 +646,18 @@ extension NatfrpServiceAsyncClientProtocol {
     )
   }
 
+  internal func makeAuthTunnelCall(
+    _ request: TunnelAuthRequest,
+    callOptions: CallOptions? = nil
+  ) -> GRPCAsyncUnaryCall<TunnelAuthRequest, Empty> {
+    return self.makeAsyncUnaryCall(
+      path: NatfrpServiceClientMetadata.Methods.authTunnel.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeAuthTunnelInterceptors() ?? []
+    )
+  }
+
   internal func makeReloadTunnelsCall(
     _ request: Empty,
     callOptions: CallOptions? = nil
@@ -631,9 +671,9 @@ extension NatfrpServiceAsyncClientProtocol {
   }
 
   internal func makeReloadNodesCall(
-    _ request: Empty,
+    _ request: ReloadNodesRequest,
     callOptions: CallOptions? = nil
-  ) -> GRPCAsyncUnaryCall<Empty, Empty> {
+  ) -> GRPCAsyncUnaryCall<ReloadNodesRequest, Empty> {
     return self.makeAsyncUnaryCall(
       path: NatfrpServiceClientMetadata.Methods.reloadNodes.path,
       request: request,
@@ -801,6 +841,18 @@ extension NatfrpServiceAsyncClientProtocol {
     )
   }
 
+  internal func authTunnel(
+    _ request: TunnelAuthRequest,
+    callOptions: CallOptions? = nil
+  ) async throws -> Empty {
+    return try await self.performAsyncUnaryCall(
+      path: NatfrpServiceClientMetadata.Methods.authTunnel.path,
+      request: request,
+      callOptions: callOptions ?? self.defaultCallOptions,
+      interceptors: self.interceptors?.makeAuthTunnelInterceptors() ?? []
+    )
+  }
+
   internal func reloadTunnels(
     _ request: Empty,
     callOptions: CallOptions? = nil
@@ -814,7 +866,7 @@ extension NatfrpServiceAsyncClientProtocol {
   }
 
   internal func reloadNodes(
-    _ request: Empty,
+    _ request: ReloadNodesRequest,
     callOptions: CallOptions? = nil
   ) async throws -> Empty {
     return try await self.performAsyncUnaryCall(
@@ -938,11 +990,14 @@ internal protocol NatfrpServiceClientInterceptorFactoryProtocol: Sendable {
   /// - Returns: Interceptors to use when invoking 'updateTunnel'.
   func makeUpdateTunnelInterceptors() -> [ClientInterceptor<TunnelUpdate, TunnelUpdate>]
 
+  /// - Returns: Interceptors to use when invoking 'authTunnel'.
+  func makeAuthTunnelInterceptors() -> [ClientInterceptor<TunnelAuthRequest, Empty>]
+
   /// - Returns: Interceptors to use when invoking 'reloadTunnels'.
   func makeReloadTunnelsInterceptors() -> [ClientInterceptor<Empty, Empty>]
 
   /// - Returns: Interceptors to use when invoking 'reloadNodes'.
-  func makeReloadNodesInterceptors() -> [ClientInterceptor<Empty, Empty>]
+  func makeReloadNodesInterceptors() -> [ClientInterceptor<ReloadNodesRequest, Empty>]
 
   /// - Returns: Interceptors to use when invoking 'clearLog'.
   func makeClearLogInterceptors() -> [ClientInterceptor<Empty, Empty>]
@@ -975,6 +1030,7 @@ internal enum NatfrpServiceClientMetadata {
       NatfrpServiceClientMetadata.Methods.login,
       NatfrpServiceClientMetadata.Methods.logout,
       NatfrpServiceClientMetadata.Methods.updateTunnel,
+      NatfrpServiceClientMetadata.Methods.authTunnel,
       NatfrpServiceClientMetadata.Methods.reloadTunnels,
       NatfrpServiceClientMetadata.Methods.reloadNodes,
       NatfrpServiceClientMetadata.Methods.clearLog,
@@ -1026,6 +1082,12 @@ internal enum NatfrpServiceClientMetadata {
     internal static let updateTunnel = GRPCMethodDescriptor(
       name: "UpdateTunnel",
       path: "/NatfrpService/UpdateTunnel",
+      type: GRPCCallType.unary
+    )
+
+    internal static let authTunnel = GRPCMethodDescriptor(
+      name: "AuthTunnel",
+      path: "/NatfrpService/AuthTunnel",
       type: GRPCCallType.unary
     )
 
@@ -1104,9 +1166,11 @@ internal protocol NatfrpServiceProvider: CallHandlerProvider {
   /// For Delete, Update, return empty data.
   func updateTunnel(request: TunnelUpdate, context: StatusOnlyCallContext) -> EventLoopFuture<TunnelUpdate>
 
+  func authTunnel(request: TunnelAuthRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Empty>
+
   func reloadTunnels(request: Empty, context: StatusOnlyCallContext) -> EventLoopFuture<Empty>
 
-  func reloadNodes(request: Empty, context: StatusOnlyCallContext) -> EventLoopFuture<Empty>
+  func reloadNodes(request: ReloadNodesRequest, context: StatusOnlyCallContext) -> EventLoopFuture<Empty>
 
   func clearLog(request: Empty, context: StatusOnlyCallContext) -> EventLoopFuture<Empty>
 
@@ -1196,6 +1260,15 @@ extension NatfrpServiceProvider {
         userFunction: self.updateTunnel(request:context:)
       )
 
+    case "AuthTunnel":
+      return UnaryServerHandler(
+        context: context,
+        requestDeserializer: ProtobufDeserializer<TunnelAuthRequest>(),
+        responseSerializer: ProtobufSerializer<Empty>(),
+        interceptors: self.interceptors?.makeAuthTunnelInterceptors() ?? [],
+        userFunction: self.authTunnel(request:context:)
+      )
+
     case "ReloadTunnels":
       return UnaryServerHandler(
         context: context,
@@ -1208,7 +1281,7 @@ extension NatfrpServiceProvider {
     case "ReloadNodes":
       return UnaryServerHandler(
         context: context,
-        requestDeserializer: ProtobufDeserializer<Empty>(),
+        requestDeserializer: ProtobufDeserializer<ReloadNodesRequest>(),
         responseSerializer: ProtobufSerializer<Empty>(),
         interceptors: self.interceptors?.makeReloadNodesInterceptors() ?? [],
         userFunction: self.reloadNodes(request:context:)
@@ -1326,13 +1399,18 @@ internal protocol NatfrpServiceAsyncProvider: CallHandlerProvider, Sendable {
     context: GRPCAsyncServerCallContext
   ) async throws -> TunnelUpdate
 
+  func authTunnel(
+    request: TunnelAuthRequest,
+    context: GRPCAsyncServerCallContext
+  ) async throws -> Empty
+
   func reloadTunnels(
     request: Empty,
     context: GRPCAsyncServerCallContext
   ) async throws -> Empty
 
   func reloadNodes(
-    request: Empty,
+    request: ReloadNodesRequest,
     context: GRPCAsyncServerCallContext
   ) async throws -> Empty
 
@@ -1449,6 +1527,15 @@ extension NatfrpServiceAsyncProvider {
         wrapping: { try await self.updateTunnel(request: $0, context: $1) }
       )
 
+    case "AuthTunnel":
+      return GRPCAsyncServerHandler(
+        context: context,
+        requestDeserializer: ProtobufDeserializer<TunnelAuthRequest>(),
+        responseSerializer: ProtobufSerializer<Empty>(),
+        interceptors: self.interceptors?.makeAuthTunnelInterceptors() ?? [],
+        wrapping: { try await self.authTunnel(request: $0, context: $1) }
+      )
+
     case "ReloadTunnels":
       return GRPCAsyncServerHandler(
         context: context,
@@ -1461,7 +1548,7 @@ extension NatfrpServiceAsyncProvider {
     case "ReloadNodes":
       return GRPCAsyncServerHandler(
         context: context,
-        requestDeserializer: ProtobufDeserializer<Empty>(),
+        requestDeserializer: ProtobufDeserializer<ReloadNodesRequest>(),
         responseSerializer: ProtobufSerializer<Empty>(),
         interceptors: self.interceptors?.makeReloadNodesInterceptors() ?? [],
         wrapping: { try await self.reloadNodes(request: $0, context: $1) }
@@ -1557,13 +1644,17 @@ internal protocol NatfrpServiceServerInterceptorFactoryProtocol: Sendable {
   ///   Defaults to calling `self.makeInterceptors()`.
   func makeUpdateTunnelInterceptors() -> [ServerInterceptor<TunnelUpdate, TunnelUpdate>]
 
+  /// - Returns: Interceptors to use when handling 'authTunnel'.
+  ///   Defaults to calling `self.makeInterceptors()`.
+  func makeAuthTunnelInterceptors() -> [ServerInterceptor<TunnelAuthRequest, Empty>]
+
   /// - Returns: Interceptors to use when handling 'reloadTunnels'.
   ///   Defaults to calling `self.makeInterceptors()`.
   func makeReloadTunnelsInterceptors() -> [ServerInterceptor<Empty, Empty>]
 
   /// - Returns: Interceptors to use when handling 'reloadNodes'.
   ///   Defaults to calling `self.makeInterceptors()`.
-  func makeReloadNodesInterceptors() -> [ServerInterceptor<Empty, Empty>]
+  func makeReloadNodesInterceptors() -> [ServerInterceptor<ReloadNodesRequest, Empty>]
 
   /// - Returns: Interceptors to use when handling 'clearLog'.
   ///   Defaults to calling `self.makeInterceptors()`.
@@ -1602,6 +1693,7 @@ internal enum NatfrpServiceServerMetadata {
       NatfrpServiceServerMetadata.Methods.login,
       NatfrpServiceServerMetadata.Methods.logout,
       NatfrpServiceServerMetadata.Methods.updateTunnel,
+      NatfrpServiceServerMetadata.Methods.authTunnel,
       NatfrpServiceServerMetadata.Methods.reloadTunnels,
       NatfrpServiceServerMetadata.Methods.reloadNodes,
       NatfrpServiceServerMetadata.Methods.clearLog,
@@ -1653,6 +1745,12 @@ internal enum NatfrpServiceServerMetadata {
     internal static let updateTunnel = GRPCMethodDescriptor(
       name: "UpdateTunnel",
       path: "/NatfrpService/UpdateTunnel",
+      type: GRPCCallType.unary
+    )
+
+    internal static let authTunnel = GRPCMethodDescriptor(
+      name: "AuthTunnel",
+      path: "/NatfrpService/AuthTunnel",
       type: GRPCCallType.unary
     )
 

@@ -42,6 +42,32 @@ struct LoginRequest {
   init() {}
 }
 
+struct ReloadNodesRequest {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var force: Bool = false
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
+struct TunnelAuthRequest {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var id: Int32 = 0
+
+  var ip: String = String()
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
 /// User represents the current user metadata and login status.
 struct User {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -139,7 +165,7 @@ struct User {
 
 extension User.Status: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [User.Status] = [
+  static let allCases: [User.Status] = [
     .unknown,
     .noLogin,
     .pending,
@@ -274,7 +300,7 @@ struct Log {
 
 extension Log.Category: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Log.Category] = [
+  static let allCases: [Log.Category] = [
     .unknown,
     .alert,
     .frpc,
@@ -284,7 +310,7 @@ extension Log.Category: CaseIterable {
 
 extension Log.Level: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Log.Level] = [
+  static let allCases: [Log.Level] = [
     .debug,
     .info,
     .warn,
@@ -294,18 +320,6 @@ extension Log.Level: CaseIterable {
 }
 
 #endif  // swift(>=4.2)
-
-struct LogList {
-  // SwiftProtobuf.Message conformance is added in an extension below. See the
-  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
-  // methods supported on all messages.
-
-  var data: [Log] = []
-
-  var unknownFields = SwiftProtobuf.UnknownStorage()
-
-  init() {}
-}
 
 struct ServiceConfig {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
@@ -322,6 +336,8 @@ struct ServiceConfig {
   var remoteManagementKey: String = String()
 
   var frpcForceTls: Bool = false
+
+  var frpcLogLevel: String = String()
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -390,7 +406,7 @@ struct SoftwareUpdate {
 
 extension SoftwareUpdate.Status: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [SoftwareUpdate.Status] = [
+  static let allCases: [SoftwareUpdate.Status] = [
     .noUpdate,
     .downloading,
     .ready,
@@ -429,6 +445,9 @@ struct Tunnel {
   var enabled: Bool = false
 
   var state: Tunnel.State = .idle
+
+  /// The frpc defined status flags
+  var frpcState: Int32 = 0
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -488,7 +507,7 @@ struct Tunnel {
 
 extension Tunnel.State: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [Tunnel.State] = [
+  static let allCases: [Tunnel.State] = [
     .idle,
     .started,
     .running,
@@ -526,6 +545,9 @@ struct TunnelUpdate {
     case update // = 2
     case delete // = 3
     case clear // = 4
+
+    /// Exclusive C -> S, used to edit / migrate tunnel
+    case edit // = 5
     case UNRECOGNIZED(Int)
 
     init() {
@@ -539,6 +561,7 @@ struct TunnelUpdate {
       case 2: self = .update
       case 3: self = .delete
       case 4: self = .clear
+      case 5: self = .edit
       default: self = .UNRECOGNIZED(rawValue)
       }
     }
@@ -550,6 +573,7 @@ struct TunnelUpdate {
       case .update: return 2
       case .delete: return 3
       case .clear: return 4
+      case .edit: return 5
       case .UNRECOGNIZED(let i): return i
       }
     }
@@ -565,12 +589,13 @@ struct TunnelUpdate {
 
 extension TunnelUpdate.Action: CaseIterable {
   // The compiler won't synthesize support with the UNRECOGNIZED case.
-  static var allCases: [TunnelUpdate.Action] = [
+  static let allCases: [TunnelUpdate.Action] = [
     .unknown,
     .add,
     .update,
     .delete,
     .clear,
+    .edit,
   ]
 }
 
@@ -606,6 +631,37 @@ struct NodeList {
   // methods supported on all messages.
 
   var nodes: Dictionary<Int32,Node> = [:]
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
+struct Notification {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var match: [String] = []
+
+  var type: String = String()
+
+  /// default, info, success, warning, error
+  var title: String = String()
+
+  var content: String = String()
+
+  var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  init() {}
+}
+
+struct NotificationList {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  var notifications: [Notification] = []
 
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -653,6 +709,15 @@ struct StateUpdate {
   /// Clears the value of `update`. Subsequent reads from it will return its default value.
   mutating func clearUpdate() {_uniqueStorage()._update = nil}
 
+  var notifications: NotificationList {
+    get {return _storage._notifications ?? NotificationList()}
+    set {_uniqueStorage()._notifications = newValue}
+  }
+  /// Returns true if `notifications` has been explicitly set.
+  var hasNotifications: Bool {return _storage._notifications != nil}
+  /// Clears the value of `notifications`. Subsequent reads from it will return its default value.
+  mutating func clearNotifications() {_uniqueStorage()._notifications = nil}
+
   var unknownFields = SwiftProtobuf.UnknownStorage()
 
   init() {}
@@ -663,6 +728,8 @@ struct StateUpdate {
 #if swift(>=5.5) && canImport(_Concurrency)
 extension Empty: @unchecked Sendable {}
 extension LoginRequest: @unchecked Sendable {}
+extension ReloadNodesRequest: @unchecked Sendable {}
+extension TunnelAuthRequest: @unchecked Sendable {}
 extension User: @unchecked Sendable {}
 extension User.Status: @unchecked Sendable {}
 extension User.Group: @unchecked Sendable {}
@@ -671,7 +738,6 @@ extension StatsUpdate: @unchecked Sendable {}
 extension Log: @unchecked Sendable {}
 extension Log.Category: @unchecked Sendable {}
 extension Log.Level: @unchecked Sendable {}
-extension LogList: @unchecked Sendable {}
 extension ServiceConfig: @unchecked Sendable {}
 extension SoftwareUpdate: @unchecked Sendable {}
 extension SoftwareUpdate.Status: @unchecked Sendable {}
@@ -681,6 +747,8 @@ extension TunnelUpdate: @unchecked Sendable {}
 extension TunnelUpdate.Action: @unchecked Sendable {}
 extension Node: @unchecked Sendable {}
 extension NodeList: @unchecked Sendable {}
+extension Notification: @unchecked Sendable {}
+extension NotificationList: @unchecked Sendable {}
 extension StateUpdate: @unchecked Sendable {}
 #endif  // swift(>=5.5) && canImport(_Concurrency)
 
@@ -732,6 +800,76 @@ extension LoginRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementat
 
   static func ==(lhs: LoginRequest, rhs: LoginRequest) -> Bool {
     if lhs.token != rhs.token {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension ReloadNodesRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "ReloadNodesRequest"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "force"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularBoolField(value: &self.force) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.force != false {
+      try visitor.visitSingularBoolField(value: self.force, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: ReloadNodesRequest, rhs: ReloadNodesRequest) -> Bool {
+    if lhs.force != rhs.force {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension TunnelAuthRequest: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "TunnelAuthRequest"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "id"),
+    2: .same(proto: "ip"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularInt32Field(value: &self.id) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.ip) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.id != 0 {
+      try visitor.visitSingularInt32Field(value: self.id, fieldNumber: 1)
+    }
+    if !self.ip.isEmpty {
+      try visitor.visitSingularStringField(value: self.ip, fieldNumber: 2)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: TunnelAuthRequest, rhs: TunnelAuthRequest) -> Bool {
+    if lhs.id != rhs.id {return false}
+    if lhs.ip != rhs.ip {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1025,38 +1163,6 @@ extension Log.Level: SwiftProtobuf._ProtoNameProviding {
   ]
 }
 
-extension LogList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
-  static let protoMessageName: String = "LogList"
-  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
-    3: .same(proto: "data"),
-  ]
-
-  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 3: try { try decoder.decodeRepeatedMessageField(value: &self.data) }()
-      default: break
-      }
-    }
-  }
-
-  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    if !self.data.isEmpty {
-      try visitor.visitRepeatedMessageField(value: self.data, fieldNumber: 3)
-    }
-    try unknownFields.traverse(visitor: &visitor)
-  }
-
-  static func ==(lhs: LogList, rhs: LogList) -> Bool {
-    if lhs.data != rhs.data {return false}
-    if lhs.unknownFields != rhs.unknownFields {return false}
-    return true
-  }
-}
-
 extension ServiceConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "ServiceConfig"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -1065,6 +1171,7 @@ extension ServiceConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     3: .standard(proto: "remote_management"),
     4: .standard(proto: "remote_management_key"),
     5: .standard(proto: "frpc_force_tls"),
+    6: .standard(proto: "frpc_log_level"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1078,6 +1185,7 @@ extension ServiceConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
       case 3: try { try decoder.decodeSingularBoolField(value: &self.remoteManagement) }()
       case 4: try { try decoder.decodeSingularStringField(value: &self.remoteManagementKey) }()
       case 5: try { try decoder.decodeSingularBoolField(value: &self.frpcForceTls) }()
+      case 6: try { try decoder.decodeSingularStringField(value: &self.frpcLogLevel) }()
       default: break
       }
     }
@@ -1099,6 +1207,9 @@ extension ServiceConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if self.frpcForceTls != false {
       try visitor.visitSingularBoolField(value: self.frpcForceTls, fieldNumber: 5)
     }
+    if !self.frpcLogLevel.isEmpty {
+      try visitor.visitSingularStringField(value: self.frpcLogLevel, fieldNumber: 6)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1108,6 +1219,7 @@ extension ServiceConfig: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementa
     if lhs.remoteManagement != rhs.remoteManagement {return false}
     if lhs.remoteManagementKey != rhs.remoteManagementKey {return false}
     if lhs.frpcForceTls != rhs.frpcForceTls {return false}
+    if lhs.frpcLogLevel != rhs.frpcLogLevel {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1205,6 +1317,7 @@ extension Tunnel: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBas
     7: .same(proto: "status"),
     8: .same(proto: "enabled"),
     9: .same(proto: "state"),
+    13: .standard(proto: "frpc_state"),
   ]
 
   mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
@@ -1225,6 +1338,7 @@ extension Tunnel: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBas
       case 10: try { try decoder.decodeSingularStringField(value: &self.localIp) }()
       case 11: try { try decoder.decodeSingularInt32Field(value: &self.localPort) }()
       case 12: try { try decoder.decodeSingularStringField(value: &self.remote) }()
+      case 13: try { try decoder.decodeSingularInt32Field(value: &self.frpcState) }()
       default: break
       }
     }
@@ -1267,6 +1381,9 @@ extension Tunnel: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBas
     if !self.remote.isEmpty {
       try visitor.visitSingularStringField(value: self.remote, fieldNumber: 12)
     }
+    if self.frpcState != 0 {
+      try visitor.visitSingularInt32Field(value: self.frpcState, fieldNumber: 13)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1283,6 +1400,7 @@ extension Tunnel: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBas
     if lhs.status != rhs.status {return false}
     if lhs.enabled != rhs.enabled {return false}
     if lhs.state != rhs.state {return false}
+    if lhs.frpcState != rhs.frpcState {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -1347,6 +1465,7 @@ extension TunnelUpdate.Action: SwiftProtobuf._ProtoNameProviding {
     2: .same(proto: "Update"),
     3: .same(proto: "Delete"),
     4: .same(proto: "Clear"),
+    5: .same(proto: "Edit"),
   ]
 }
 
@@ -1450,6 +1569,88 @@ extension NodeList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationB
   }
 }
 
+extension Notification: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "Notification"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "match"),
+    2: .same(proto: "type"),
+    3: .same(proto: "title"),
+    4: .same(proto: "content"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedStringField(value: &self.match) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.type) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.title) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.content) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.match.isEmpty {
+      try visitor.visitRepeatedStringField(value: self.match, fieldNumber: 1)
+    }
+    if !self.type.isEmpty {
+      try visitor.visitSingularStringField(value: self.type, fieldNumber: 2)
+    }
+    if !self.title.isEmpty {
+      try visitor.visitSingularStringField(value: self.title, fieldNumber: 3)
+    }
+    if !self.content.isEmpty {
+      try visitor.visitSingularStringField(value: self.content, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: Notification, rhs: Notification) -> Bool {
+    if lhs.match != rhs.match {return false}
+    if lhs.type != rhs.type {return false}
+    if lhs.title != rhs.title {return false}
+    if lhs.content != rhs.content {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+extension NotificationList: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  static let protoMessageName: String = "NotificationList"
+  static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
+    1: .same(proto: "notifications"),
+  ]
+
+  mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeRepeatedMessageField(value: &self.notifications) }()
+      default: break
+      }
+    }
+  }
+
+  func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.notifications.isEmpty {
+      try visitor.visitRepeatedMessageField(value: self.notifications, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  static func ==(lhs: NotificationList, rhs: NotificationList) -> Bool {
+    if lhs.notifications != rhs.notifications {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
 extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   static let protoMessageName: String = "StateUpdate"
   static let _protobuf_nameMap: SwiftProtobuf._NameMap = [
@@ -1457,6 +1658,7 @@ extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
     2: .same(proto: "nodes"),
     3: .same(proto: "config"),
     4: .same(proto: "update"),
+    5: .same(proto: "notifications"),
   ]
 
   fileprivate class _StorageClass {
@@ -1464,8 +1666,17 @@ extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
     var _nodes: NodeList? = nil
     var _config: ServiceConfig? = nil
     var _update: SoftwareUpdate? = nil
+    var _notifications: NotificationList? = nil
 
-    static let defaultInstance = _StorageClass()
+    #if swift(>=5.10)
+      // This property is used as the initial default value for new instances of the type.
+      // The type itself is protecting the reference to its storage via CoW semantics.
+      // This will force a copy to be made of this reference when the first mutation occurs;
+      // hence, it is safe to mark this as `nonisolated(unsafe)`.
+      static nonisolated(unsafe) let defaultInstance = _StorageClass()
+    #else
+      static let defaultInstance = _StorageClass()
+    #endif
 
     private init() {}
 
@@ -1474,6 +1685,7 @@ extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
       _nodes = source._nodes
       _config = source._config
       _update = source._update
+      _notifications = source._notifications
     }
   }
 
@@ -1496,6 +1708,7 @@ extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
         case 2: try { try decoder.decodeSingularMessageField(value: &_storage._nodes) }()
         case 3: try { try decoder.decodeSingularMessageField(value: &_storage._config) }()
         case 4: try { try decoder.decodeSingularMessageField(value: &_storage._update) }()
+        case 5: try { try decoder.decodeSingularMessageField(value: &_storage._notifications) }()
         default: break
         }
       }
@@ -1520,6 +1733,9 @@ extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
       try { if let v = _storage._update {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 4)
       } }()
+      try { if let v = _storage._notifications {
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 5)
+      } }()
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -1533,6 +1749,7 @@ extension StateUpdate: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementati
         if _storage._nodes != rhs_storage._nodes {return false}
         if _storage._config != rhs_storage._config {return false}
         if _storage._update != rhs_storage._update {return false}
+        if _storage._notifications != rhs_storage._notifications {return false}
         return true
       }
       if !storagesAreEqual {return false}
