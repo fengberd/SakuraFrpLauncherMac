@@ -10,7 +10,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDele
     var statusBarMenu: NSMenu!
     var statusBarItem: NSStatusItem!
 
-    func applicationDidFinishLaunching(_: Notification) {
+    func applicationDidFinishLaunching(_: Foundation.Notification) {
         if isPreview {
             return
         }

@@ -3,7 +3,7 @@ import Cocoa
 class BootAgentDelegate: NSObject, NSApplicationDelegate {
     let serviceBundle = "com.natfrp.launcher"
 
-    func applicationDidFinishLaunching(_: Notification) {
+    func applicationDidFinishLaunching(_: Foundation.Notification) {
         if !NSWorkspace.shared.runningApplications
             .contains(where: { $0.bundleIdentifier == serviceBundle })
         {
