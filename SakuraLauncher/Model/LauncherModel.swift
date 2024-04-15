@@ -208,6 +208,10 @@ import UserNotifications
                         entry.time = l.data.groupOf(match, group: "Time")
                         entry.data = l.data.groupOf(match, group: "Content")
                         switch l.data.groupOf(match, group: "Level") {
+                        case "T":
+                            fallthrough
+                        case "D":
+                            entry.level = .debug
                         case "W":
                             entry.level = .warning
                         case "E":
