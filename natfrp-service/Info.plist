@@ -9,7 +9,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>com.natfrp.launcher</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.1.0</string>
+	<string>3.1.1</string>
 	<key>CFBundleExecutable</key>
 	<string>natfrp-service</string>
 	<key>LSBackgroundOnly</key>
