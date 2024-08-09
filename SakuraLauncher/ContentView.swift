@@ -4,6 +4,7 @@ struct ContentView: View {
     @EnvironmentObject var model: LauncherModel
 
     @State var currentTab = TabItemView.Tabs.settings
+    @State var logScrollPosition: UUID? = nil
 
     var body: some View {
         ZStack {
@@ -40,7 +41,7 @@ struct ContentView: View {
             case .tunnel:
                 TunnelTab()
             case .log:
-                LogTab()
+                LogTab(lastScrollOffset: $logScrollPosition)
             case .settings:
                 SettingsTab()
             case .about:

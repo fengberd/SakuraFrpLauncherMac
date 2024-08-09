@@ -13,11 +13,9 @@ import UserNotifications
         preview = false
 
         UserDefaults.standard.register(defaults: [
-            "logTextWrapping": true,
             "notificationMode": 0,
             "advancedMode": false,
         ])
-        logTextWrapping = UserDefaults.standard.bool(forKey: "logTextWrapping")
         notificationMode = UserDefaults.standard.integer(forKey: "notificationMode")
         advancedMode = UserDefaults.standard.bool(forKey: "advancedMode")
 
@@ -88,10 +86,6 @@ import UserNotifications
     @Published var connected = false
 
     // MARK: - View: Launcher Settings
-
-    @Published var logTextWrapping: Bool {
-        willSet { UserDefaults.standard.setValue(newValue, forKey: "logTextWrapping") }
-    }
 
     @Published var notificationMode: Int {
         willSet { UserDefaults.standard.setValue(newValue, forKey: "notificationMode") }
@@ -377,7 +371,6 @@ import UserNotifications
     init(preview: Bool) {
         assert(preview)
         self.preview = true
-        logTextWrapping = true
         advancedMode = false
         notificationMode = 1
         launchAtLogin = false

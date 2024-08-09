@@ -10,6 +10,9 @@ struct LogTab: View {
 
     @State var filter = ""
 
+    @Binding var lastScrollOffset: UUID?
+    @State private var current: [UUID] = []
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -17,12 +20,14 @@ struct LogTab: View {
                     .font(.title)
                     .padding(.leading, 24)
                 Button(action: {
-//                    _ = model.pipe.request(.logClear)
-
                     model.logs = []
                     model.logFilters = [:]
 
                     filter = ""
+
+                    model.rpcWithAlert { [self] in
+                        _ = try await model.RPC?.clearLog(model.rpcEmpty)
+                    }
                 }) {
                     Image(systemName: "trash")
                 }
@@ -44,20 +49,47 @@ struct LogTab: View {
                 .frame(width: 200)
                 .padding(.trailing)
             }
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    if model.logTextWrapping {
+
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(filter == "" ? model.logs : model.logs.filter { $0.source == filter }, id: \.id) { l in
                             logLine(l)
-                        }
-                    } else {
-                        ForEach(filter == "" ? model.logs : model.logs.filter { $0.source == filter }, id: \.id) { l in
-                            logLine(l).lineLimit(1)
+                                .onAppear {
+                                    current.append(l.id)
+
+                                    if let last = model.logs.last(where: { l in current.contains(l.id) }) {
+                                        if last.id != model.logs.last?.id {
+                                            lastScrollOffset = last.id
+                                        } else {
+                                            lastScrollOffset = nil
+                                        }
+                                    } else {
+                                        lastScrollOffset = nil
+                                    }
+                                }
+                                .onDisappear { current.removeAll { $0 == l.id } }
                         }
                     }
+                    .id("logs")
+                    .font(.custom("monaco", size: 12))
+                    .padding(8)
                 }
-                .font(.custom("monaco", size: 12))
-                .padding(8)
+                .onAppear {
+                    if let offset = lastScrollOffset {
+                        proxy.scrollTo(offset, anchor: .bottom)
+                    } else {
+                        proxy.scrollTo("logs", anchor: .bottom)
+                    }
+                }
+                .onChange(of: model.logs.count) { _ in
+                    if lastScrollOffset == nil {
+                        proxy.scrollTo("logs", anchor: .bottom)
+                    }
+                }
+                .onChange(of: filter) { _ in
+                    proxy.scrollTo("logs", anchor: .bottom)
+                }
             }
             .background(Color.black.opacity(colorScheme == .dark ? 0.2 : 0.8))
             .border(colorScheme == .dark ? Color.secondary.opacity(0.8) : Color.gray, width: 2)
@@ -76,7 +108,7 @@ struct LogTab: View {
 #if DEBUG
 struct LogTab_Previews: PreviewProvider {
     static var previews: some View {
-        LogTab()
+        LogTab(lastScrollOffset: .constant(nil))
             .previewLayout(.fixed(width: 602, height: 500))
             .environmentObject(LauncherModel_Preview() as LauncherModel)
     }
