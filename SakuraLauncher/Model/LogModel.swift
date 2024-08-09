@@ -1,7 +1,8 @@
 import SwiftUI
 
 enum LogLevel: String {
-    case debug = "D",
+    case trace = "T",
+         debug = "D",
          info = "I",
          warning = "W",
          error = "E",
@@ -10,7 +11,7 @@ enum LogLevel: String {
 }
 
 class LogModel {
-    static let pattern = try! NSRegularExpression(pattern: #"(?<Time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?<Level>[DIWE])\] (?:\[[a-zA-Z0-9\-_\.]+:\d+\] )?(?<Content>.+)"#)
+    static let pattern = try! NSRegularExpression(pattern: #"(?<Time>\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}) \[(?<Level>[DIWET])\] (?:\[[a-zA-Z0-9\-_\.]+:\d+\] )?(?<Content>.+)"#)
 
     var id = UUID()
 
@@ -28,6 +29,8 @@ class LogModel {
 
     func levelColor() -> Color {
         switch level {
+        case .trace, .debug:
+            return Color.gray
         case .warning:
             return Color.orange
         case .error:

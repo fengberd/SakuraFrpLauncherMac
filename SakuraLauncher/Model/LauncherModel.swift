@@ -209,7 +209,7 @@ import UserNotifications
                         entry.data = l.data.groupOf(match, group: "Content")
                         switch l.data.groupOf(match, group: "Level") {
                         case "T":
-                            fallthrough
+                            entry.level = .trace
                         case "D":
                             entry.level = .debug
                         case "W":
