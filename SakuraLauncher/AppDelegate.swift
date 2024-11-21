@@ -56,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, NSMenuDele
         statusBarMenu.addItem(withTitle: "退出", action: #selector(exitAction), keyEquivalent: "q")
             .keyEquivalentModifierMask = [.command]
         statusBarMenu.addItem(withTitle: "彻底退出", action: #selector(exitFullAction), keyEquivalent: "q")
-            .keyEquivalentModifierMask = [.command, .shift]
+            .keyEquivalentModifierMask = [.command, .option]
 
         statusBarItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let btn = statusBarItem.button {

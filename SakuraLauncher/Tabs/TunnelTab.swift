@@ -35,6 +35,12 @@ struct TunnelTab: View {
                 .font(.system(size: 16))
                 .padding(.leading, 8)
                 .disabled(reloading)
+                
+                Spacer()
+                
+                TextField("过滤...", text: $model.tunnelFilter)
+                    .padding(.trailing, 24)
+                    .frame(width: 200)
             }
             if model.tunnels.count == 0 {
                 Text("还没有隧道哦")
@@ -45,7 +51,7 @@ struct TunnelTab: View {
                 GeometryReader { geometry in
                     ScrollView {
                         LazyVGrid(columns: Array(repeating: .init(.adaptive(minimum: 260), spacing: 20), count: Int(geometry.size.width / 260)), alignment: .leading, spacing: 20) {
-                            ForEach(model.tunnels, id: \.id) { t in
+                            ForEach(model.filteredTunnels, id: \.id) { t in
                                 TunnelItemView(tunnel: t).contextMenu {
                                     Button("编辑隧道") {
                                         openWindow(id: "create-tunnel", value: try! t.proto.jsonString())

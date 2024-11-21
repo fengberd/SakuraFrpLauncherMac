@@ -306,6 +306,30 @@ import UserNotifications
 
     @Published var tunnels: [TunnelModel] = []
 
+    @Published var tunnelFilter = ""
+
+    var filteredTunnels: [TunnelModel] {
+        tunnels.filter {
+            if tunnelFilter.isEmpty {
+                return true
+            }
+
+            let f = tunnelFilter.lowercased(), t = $0
+
+            if f.starts(with: "#") {
+                return String(t.id).starts(with: String(f.dropFirst())) || String(t.node) == f
+            }
+
+            return t.name.lowercased().contains(f) ||
+                t.proto.note.lowercased().contains(f) ||
+                t.proto.remote.lowercased().contains(f) ||
+                t.proto.localIp.lowercased().contains(f) ||
+                t.proto.localPort != 0 && String(t.proto.localPort).starts(with: f) ||
+                t.type.lowercased().starts(with: f) ||
+                t.nodeName.lowercased().contains(f)
+        }
+    }
+
     // MARK: - Logging
 
     @Published var logs: [LogModel] = []
